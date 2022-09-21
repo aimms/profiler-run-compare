@@ -1,0 +1,544 @@
+{
+  "version": "4.67.0",
+  "application": {
+    "aimms.widget.type": {
+      "literal": "application"
+    },
+    "browsername": {
+      "aimms": {
+        "contents": [
+          "webui::ClientBrowserName"
+        ]
+      }
+    },
+    "browsertimezone": {
+      "aimms": {
+        "contents": [
+          "webui::BrowserTimeZone"
+        ]
+      }
+    },
+    "ignoredst": {
+      "aimms": {
+        "contents": [
+          "webui::IgnoreDST"
+        ]
+      }
+    },
+    "theme.classic": {
+      "literal": "NOT_ALLOWED"
+    },
+    "timezone": {
+      "aimms": {
+        "contents": [
+          "webui::DisplayTimeZone"
+        ]
+      }
+    },
+    "timezone.dst.readonly": {
+      "aimms": {
+        "contents": [
+          "webui::DefaultDSTSettingForDisplayTimeZone"
+        ]
+      }
+    }
+  },
+  "layouts/custom_1cda60db-733c-48de-801e-b3e743504aea": {
+    "definition": {
+      "literal": {
+        "componentName": "Grid",
+        "props": {
+          "gridTemplateColumns": "3fr 1fr",
+          "gridTemplateRows": "1fr 1fr 1fr",
+          "gridTemplateAreas": "\"area-a area-b\" \"area-a area-c\" \"area-a area-d\""
+        },
+        "items": [
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-a",
+              "name": "Area A",
+              "gridAutoFlow": "column"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-b",
+              "name": "Area B",
+              "gridAutoFlow": "row"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-c",
+              "name": "Area C",
+              "gridAutoFlow": "row"
+            }
+          },
+          {
+            "componentName": "WidgetArea",
+            "props": {
+              "gridArea": "area-d",
+              "name": "Area D",
+              "gridAutoFlow": "row"
+            }
+          }
+        ]
+      }
+    },
+    "displayName": {
+      "literal": "comparisonPageLayout"
+    }
+  },
+  "pages/home": {
+    "aimms.widget.type": {
+      "literal": "pagev2-grid"
+    },
+    "bindings": {
+      "literal": [
+        {
+          "widgetUri": "uploadButtonProfilerRun",
+          "gridArea": "area-c",
+          "dndId": "area-cuploadButtonProfilerRun0"
+        },
+        {
+          "widgetUri": "scalarSelectionsMade",
+          "gridArea": "area-b",
+          "dndId": "area-bscalarSelectionsMade2"
+        },
+        {
+          "widgetUri": "tableAllProfilerData",
+          "gridArea": "area-a",
+          "dndId": "area-atableAllProfilerData1"
+        },
+        {
+          "widgetUri": "tableAllProfilerDataSelectedProcedure",
+          "gridArea": "area-a",
+          "dndId": "Unassigned widgetstableAllProfilerDataSelectedProcedure"
+        }
+      ]
+    },
+    "layoutId": {
+      "literal": "custom_1cda60db-733c-48de-801e-b3e743504aea"
+    },
+    "widgets": {
+      "literal": [
+        {
+          "uri": "uploadButtonProfilerRun",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "tableAllProfilerData",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "scalarSelectionsMade",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        },
+        {
+          "uri": "tableAllProfilerDataSelectedProcedure",
+          "layoutInfo": {
+            "width": "2",
+            "height": "1"
+          }
+        }
+      ]
+    }
+  },
+  "widgets/scalarSelectionsMade": {
+    "aimms.widget.type": {
+      "literal": "scalar"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "ep_profilerType",
+          "ep_selectedIdentifier",
+          "ep_runLeft",
+          "ep_runRight"
+        ]
+      }
+    },
+    "name": {
+      "literal": "scalarSelectionsMade"
+    }
+  },
+  "widgets/tableAllProfilerData": {
+    "aimms.widget.type": {
+      "literal": "table"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "p_ProfilerDataLeft",
+          "p_ProfilerDataRight",
+          "p_ProfilerDataDiff"
+        ],
+        "prefix": "aimms",
+        "partition": {
+          "rowHeader": [
+            "i_identifier"
+          ],
+          "colHeader": [
+            "i_run",
+            "IndexProfilerTypes"
+          ],
+          "aggregated": [
+            "<IDENTIFIER-SET>"
+          ]
+        },
+        "sorting": [
+          {
+            "partIndex": 0,
+            "partOffsets": [
+              -1,
+              0
+            ],
+            "mode": "decreasing"
+          }
+        ],
+        "slices": [
+          {
+            "identifier": "p_ProfilerDataDiff",
+            "slice": [
+              {
+                "index": "i_identifier",
+                "type": "free",
+                "value": "i_identifier"
+              },
+              {
+                "index": "i_profilerLineNumber",
+                "type": "fixed-element",
+                "value": "0"
+              },
+              {
+                "index": "IndexProfilerTypes",
+                "type": "element-parameter",
+                "value": "ep_profilerType"
+              }
+            ]
+          },
+          {
+            "identifier": "p_ProfilerDataLeft",
+            "slice": [
+              {
+                "index": "i_identifier",
+                "type": "free",
+                "value": "i_identifier"
+              },
+              {
+                "index": "i_profilerLineNumber",
+                "type": "fixed-element",
+                "value": "0"
+              },
+              {
+                "index": "IndexProfilerTypes",
+                "type": "element-parameter",
+                "value": "ep_profilerType"
+              }
+            ]
+          },
+          {
+            "identifier": "p_ProfilerDataRight",
+            "slice": [
+              {
+                "index": "i_identifier",
+                "type": "free",
+                "value": "i_identifier"
+              },
+              {
+                "index": "i_profilerLineNumber",
+                "type": "fixed-element",
+                "value": "0"
+              },
+              {
+                "index": "IndexProfilerTypes",
+                "type": "element-parameter",
+                "value": "ep_profilerType"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "contents.displaydomain": {
+      "literal": {
+        "p_profilerdatadiff": "bp_ProfilerDataDom"
+      }
+    },
+    "contents.numdecimals": {
+      "aimms": {
+        "contents": [
+          "p_noDecimals"
+        ]
+      }
+    },
+    "contents.partition": {
+      "literal": {
+        "rowHeader": [
+          "i_identifier"
+        ],
+        "colHeader": [
+          "i_run",
+          "IndexProfilerTypes",
+          "<IDENTIFIER-SET>"
+        ],
+        "aggregated": []
+      }
+    },
+    "contents.sorting": {
+      "literal": [
+        {
+          "partIndex": 0,
+          "partOffsets": [
+            -1,
+            2
+          ],
+          "mode": "decreasing"
+        }
+      ]
+    },
+    "custom.column.widths": {
+      "literal": [
+        {
+          "type": "rowHeader",
+          "colKey": "i_identifier",
+          "width": 43.35
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_run": "dhl-developer-a.profilerData-1662975378.txt",
+            "IndexProfilerTypes": "hits"
+          },
+          "width": 25.41
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_run": "dhl-developer-a.profilerData-1662975378.txt",
+            "IndexProfilerTypes": "gross time"
+          },
+          "width": 22.66
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_run": "dhl-developer-a.profilerData-1662975378.txt",
+            "IndexProfilerTypes": "net time"
+          },
+          "width": 24.68
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_run": "dhl-developer-a.profilerData-1662975378.txt"
+          },
+          "width": 62.12
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "i_run": "dhl-developer-b.profilerData-1662976103.txt"
+          },
+          "width": 53.75
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_ProfilerDataLeft"
+          },
+          "width": 13.63
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_ProfilerDataRight"
+          },
+          "width": 11.84
+        },
+        {
+          "type": "colHeader",
+          "colKey": {
+            "<IDENTIFIER-SET>": "p_ProfilerDataDiff"
+          },
+          "width": 12.26
+        }
+      ]
+    },
+    "name": {
+      "literal": "tableAllProfilerDataByProcedure"
+    },
+    "store.focus.in": {
+      "literal": {
+        "i_identifier": "ep_selectedIdentifier"
+      }
+    },
+    "title": {
+      "aimms": {
+        "contents": [
+          "sp_titleMainTable"
+        ],
+        "slices": []
+      }
+    }
+  },
+  "widgets/tableAllProfilerDataSelectedProcedure": {
+    "aimms.widget.type": {
+      "literal": "table"
+    },
+    "contents": {
+      "aimms": {
+        "contents": [
+          "p_ProfilerDataLeft",
+          "p_ProfilerDataRight",
+          "p_ProfilerDataDiff"
+        ],
+        "prefix": "aimms",
+        "partition": {
+          "rowHeader": [
+            "i_run",
+            "i_identifier"
+          ],
+          "colHeader": [
+            "i_profilerLineNumber",
+            "IndexProfilerTypes"
+          ],
+          "aggregated": [
+            "<IDENTIFIER-SET>"
+          ]
+        },
+        "slices": [
+          {
+            "identifier": "p_ProfilerDataDiff",
+            "slice": [
+              {
+                "index": "i_identifier",
+                "type": "element-parameter",
+                "value": "ep_selectedIdentifier"
+              },
+              {
+                "index": "i_profilerLineNumber",
+                "type": "subset",
+                "value": "i_positiveLineNumber"
+              },
+              {
+                "index": "IndexProfilerTypes",
+                "type": "element-parameter",
+                "value": "ep_profilerType"
+              }
+            ]
+          },
+          {
+            "identifier": "p_ProfilerDataLeft",
+            "slice": [
+              {
+                "index": "i_identifier",
+                "type": "element-parameter",
+                "value": "ep_selectedIdentifier"
+              },
+              {
+                "index": "i_profilerLineNumber",
+                "type": "subset",
+                "value": "i_positiveLineNumber"
+              },
+              {
+                "index": "IndexProfilerTypes",
+                "type": "element-parameter",
+                "value": "ep_profilerType"
+              }
+            ]
+          },
+          {
+            "identifier": "p_ProfilerDataRight",
+            "slice": [
+              {
+                "index": "i_identifier",
+                "type": "element-parameter",
+                "value": "ep_selectedIdentifier"
+              },
+              {
+                "index": "i_profilerLineNumber",
+                "type": "subset",
+                "value": "i_positiveLineNumber"
+              },
+              {
+                "index": "IndexProfilerTypes",
+                "type": "element-parameter",
+                "value": "ep_profilerType"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "contents.displaydomain": {
+      "literal": {
+        "p_profilerdataright": "bp_ProfilerDataDom",
+        "p_profilerdatadiff": "bp_ProfilerDataDom",
+        "p_profilerdataleft": "bp_ProfilerDataDom"
+      }
+    },
+    "contents.numdecimals": {
+      "aimms": {
+        "contents": [
+          "p_noDecimals"
+        ]
+      }
+    },
+    "contents.partition": {
+      "literal": {
+        "rowHeader": [
+          "i_run",
+          "i_identifier",
+          "i_positiveLineNumber"
+        ],
+        "colHeader": [
+          "i_profilerLineNumber",
+          "IndexProfilerTypes",
+          "<IDENTIFIER-SET>"
+        ],
+        "aggregated": []
+      }
+    },
+    "name": {
+      "literal": "tableAllProfilerDataSelectedProcedure"
+    },
+    "title": {
+      "aimms": {
+        "contents": [
+          "sp_titleByProcTable"
+        ],
+        "slices": []
+      }
+    }
+  },
+  "widgets/uploadButtonProfilerRun": {
+    "action": {
+      "literal": {
+        "type": "procedure",
+        "value": "pr_uploadProfilerRun"
+      }
+    },
+    "aimms.widget.type": {
+      "literal": "upload"
+    },
+    "name": {
+      "literal": "uploadButtonProfilerRun"
+    },
+    "title": {
+      "literal": "Upload profiler run"
+    }
+  }
+}

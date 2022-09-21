@@ -1,4 +1,4 @@
-# profiler-run-compare
+# 0243 Profiler Run Compare
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.aimms.com/aimms/customer-support/toolkit/profiler-run-compare.git
+git remote add origin https://gitlab.aimms.com/ChrisKuip/nirvana/0243-profiler-run-compare.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.aimms.com/aimms/customer-support/toolkit/profiler-run-compare/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.aimms.com/ChrisKuip/nirvana/0243-profiler-run-compare/-/settings/integrations)
 
 ## Collaborate with your team
 

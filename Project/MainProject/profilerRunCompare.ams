@@ -1,0 +1,241 @@
+## ams_version=1.0
+
+Model Main_profilerRunCompare {
+	Section Quantities_and_Units {
+		Comment: {
+			"This section contains all the units and quantities that are added automatically by AIMMS.
+			It is recommended to declare all your quantities here."
+		}
+		Quantity SI_Time_Duration {
+			BaseUnit: s;
+			Conversions: {
+				century->s : #-># * 3153600000,
+				year->s : #-># * 31536000,
+				month->s : #-># * 2628000,
+				week->s : #-># * 604800,
+				day->s : #-># * 86400,
+				hour->s : #-># * 3600,
+				minute->s : #-># * 60,
+				second->s : #-># ,
+				tick->s : #-># / 100
+			}
+			Comment: "Expresses the value for the duration of periods.";
+		}
+	}
+	ElementParameter ep_profilerType {
+		Range: AllProfilerTypes;
+		InitialData: {
+			!'hits'
+			'net time'
+		}
+	}
+	Parameter p_noDecimals {
+		Definition: {
+			if ep_profilerType = 'hits' then
+				0
+			else
+				3
+			endif
+		}
+	}
+	ElementParameter ep_selectedIdentifier {
+		Range: s_identifiers;
+		InitialData: '';
+	}
+	Set s_runs {
+		Index: i_run;
+		Comment: "Element names will correspond to names of the uploaded files.";
+	}
+	ElementParameter ep_runLeft {
+		Range: s_runs;
+		InitialData: '';
+	}
+	ElementParameter ep_runRight {
+		Range: s_runs;
+		InitialData: '';
+	}
+	StringParameter sp_titleMainTable {
+		Definition: formatString("Comparing %e and %e", ep_runLeft, ep_runRight);
+	}
+	StringParameter sp_titleByProcTable {
+		Definition: formatString("For %e", ep_selectedIdentifier);
+	}
+	Set s_identifiers {
+		Index: i_identifier;
+	}
+	Set s_profilerLineNumbers {
+		SubsetOf: Integers;
+		Index: i_profilerLineNumber;
+		InitialData: data { 0 };
+	}
+	Set s_strictlyPositiveLineNumbers {
+		SubsetOf: s_profilerLineNumbers;
+		Index: i_positiveLineNumber;
+		Definition: {
+			{ i_profilerLineNumber | val( i_profilerLineNumber ) > 0 }
+		}
+	}
+	Parameter p_ProfilerData {
+		IndexDomain: (i_identifier,i_profilerLineNumber,IndexProfilerTypes);
+	}
+	Parameter p_ProfilerDataLeft {
+		IndexDomain: (i_identifier,i_profilerLineNumber,IndexProfilerTypes);
+		Definition: p_allProfilerData(ep_runLeft, i_identifier, i_profilerLineNumber, IndexProfilerTypes);
+	}
+	Parameter p_ProfilerDataRight {
+		IndexDomain: (i_identifier,i_profilerLineNumber,IndexProfilerTypes);
+		Definition: p_allProfilerData(ep_runRight, i_identifier, i_profilerLineNumber, IndexProfilerTypes);
+	}
+	Parameter p_ProfilerDataDiff {
+		IndexDomain: (i_identifier,i_profilerLineNumber,IndexProfilerTypes);
+		Definition: {
+			abs(
+				p_ProfilerDataLeft( i_identifier, i_profilerLineNumber, IndexProfilerTypes) -
+				p_ProfilerDataRight(i_identifier, i_profilerLineNumber, IndexProfilerTypes)
+			)
+		}
+	}
+	Parameter p_allProfilerData {
+		IndexDomain: (i_run,i_identifier,i_profilerLineNumber,IndexProfilerTypes);
+		InitialData: data {};
+	}
+	Parameter bp_ProfilerDataDom {
+		IndexDomain: (i_identifier,i_profilerLineNumber,IndexProfilerTypes);
+		Definition: {
+			p_ProfilerDataLeft( i_identifier, i_profilerLineNumber, IndexProfilerTypes) or
+			p_ProfilerDataRight(i_identifier, i_profilerLineNumber, IndexProfilerTypes)
+		}
+	}
+	Procedure pr_uploadProfilerRun {
+		Arguments: (FileLocation,StatusCode,StatusDescription);
+		Body: {
+			block
+			
+				sp_FileUploadLocation := webui::GetIOFilePath(FileLocation);
+				! The file is uploaded to the process specific temporary folder. 
+			
+				StatusCode := webui::ReturnStatusCode('OK');
+				StatusDescription := formatString("Successfully read in profiler data from %s", FileLocation);
+			
+				! Now read in the new profiler data
+				pr_readDataFile(sp_FileUploadLocation);
+			
+				! Add to all runs read in.
+				pr_addRunToAllRuns(FileLocation);
+			
+			onerror ep_err do
+			
+			   	! Note: no errh::markAsHandled - the error needs to be handled by another error handler ;-)
+				if ( StatusCode = webui::ReturnStatusCode('OK') ) and
+				   ( errh::Severity( ep_err ) <> 'warning'      )     then
+				   	! Hopefully this gives some relevant info to the end user:
+					StatusCode := webui::ReturnStatusCode('ERROR');
+					StatusDescription := formatString("Failed to upload profiler data %s: %s",  
+						FileLocation, errh::Message(ep_err)) ;
+				endif ;
+			
+			endblock ;
+		}
+		StringParameter FileLocation {
+			Property: Input;
+		}
+		Parameter StatusCode {
+			Property: Output;
+		}
+		StringParameter StatusDescription {
+			Property: Output;
+		}
+		StringParameter sp_FileUploadLocation;
+		ElementParameter ep_err {
+			Range: errh::PendingErrors;
+		}
+	}
+	Procedure pr_readDataFile {
+		Arguments: (sp_FileUploadLocation);
+		Body: {
+			sp_tempFilename := "temp.txt";
+			sp_str := FileRead( sp_FileUploadLocation );
+			p_pos := FindString(sp_str, ":=");
+			sp_str2 := substring(sp_str,p_pos,StringLength(sp_str) );
+			sp_str3 := "p_ProfilerData(i_identifier,i_ProfilerLineNumber,IndexProfilerTypes)" + sp_str2 ;
+			put outf ;
+			put sp_str3 ;
+			putclose ;
+			empty p_ProfilerData ;
+			read from file sp_tempFilename ;
+			FileDelete(sp_FileUploadLocation); ! Remove the file in the temporary folder.
+			FileDelete(sp_tempFilename);
+		}
+		StringParameter sp_tempFilename;
+		StringParameter sp_FileUploadLocation {
+			Property: Input;
+		}
+		File outf {
+			Name: sp_tempFilename;
+			Device: Disk;
+			Mode: replace;
+		}
+		StringParameter sp_str;
+		StringParameter sp_str2;
+		StringParameter sp_str3;
+		Parameter p_pos;
+	}
+	Procedure pr_addRunToAllRuns {
+		Arguments: (FileLocation);
+		Body: {
+			p_pos := FindNthString(
+				SearchString  :  FileLocation, 
+				Key           :  ".", 
+				Nth           :  -2 );
+			if p_pos then
+				sp_runName := substring( FileLocation, 1, p_pos-1 );
+			else
+				sp_runName := FileLocation ; ! Todo: trim to essential name.
+			endif ;
+			SetElementAdd( s_runs, ep_lastRun, sp_runName );
+			p_allProfilerData( ep_lastRun, i_identifier, i_profilerLineNumber, IndexProfilerTypes ) :=
+				p_ProfilerData( i_identifier, i_profilerLineNumber, IndexProfilerTypes );
+		}
+		ElementParameter ep_lastRun {
+			Range: s_runs;
+		}
+		StringParameter sp_runName;
+		Parameter p_pos;
+		StringParameter FileLocation {
+			Property: Input;
+		}
+	}
+	Section Application_initialization_and_termination {
+		Procedure MainInitialization {
+			Comment: "Add initialization statements here that do NOT require any library being initialized already.";
+		}
+		Procedure PostMainInitialization {
+			Comment: {
+				"Add initialization statements here that require that the libraries are already initialized properly,
+				or add statements that require the Data Management module to be initialized."
+			}
+		}
+		Procedure MainExecution;
+		Procedure PreMainTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that require all libraries to be still alive.
+				Return 1 if you allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence."
+			}
+		}
+		Procedure MainTermination {
+			Body: {
+				return 1;
+			}
+			Comment: {
+				"Add termination statements here that do not require all libraries to be still alive.
+				Return 1 to allow the termination sequence to continue.
+				Return 0 if you want to cancel the termination sequence.
+				It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+			}
+		}
+	}
+}
