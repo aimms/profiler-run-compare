@@ -1,0 +1,60 @@
+## ams_version=1.0
+
+Section download_profiler_results {
+	DeclarationSection Profiler_data {
+		Set s_profilerLineNumbers {
+			SubsetOf: Integers;
+			Text: "Line";
+			Index: i_profilerLineNumber;
+		}
+		Parameter p_profilerData {
+			IndexDomain: (IndexIdentifiers,i_profilerLineNumber,IndexProfilerTypes );
+			Text: "Data";
+		}
+	}
+	Procedure pr_profilerDownloadDetails {
+		Arguments: (FileLocation,StatusCode,StatusDescription);
+		Body: {
+			block
+				! Assume success until error registered.
+				StatusCode := webui::ReturnStatusCode('CREATED');
+				StatusDescription := formatString("Successfully downloaded file %s", FileLocation);
+			
+				if pro::GetPROEndPoint() then
+					FileLocation := pro::ModelName + ".profilerData.txt" ;
+				else
+					FileLocation := "app" + ".profilerData.txt" ;
+				endif ;
+				sp_completeFileLocation := webui::GetIOFilePath(FileLocation);
+				ProfilerCollectAllData(
+						ProfilerData : p_profilerData,
+						GrossTimeThreshold : 0.0,
+						NetTimeThreshold : 0.0
+					);
+				block where single_column_display := 1 ;
+					write p_profilerData to file sp_completeFileLocation ;
+				endblock ;
+			onerror ep_err do
+				if errh::Severity(ep_err) <> 'warning' then
+					if StatusCode <> webui::ReturnStatusCode('ERROR') then
+						StatusCode := webui::ReturnStatusCode('ERROR');
+						StatusDescription := "Failed to download " + FileLocation + ": " + errh::Message(ep_err) ;
+					endif ;
+				endif ;
+			endblock ;
+		}
+		StringParameter FileLocation {
+			Property: Output;
+		}
+		Parameter StatusCode {
+			Property: Output;
+		}
+		StringParameter StatusDescription {
+			Property: Output;
+		}
+		StringParameter sp_completeFileLocation;
+		ElementParameter ep_err {
+			Range: errh::PendingErrors;
+		}
+	}
+}
